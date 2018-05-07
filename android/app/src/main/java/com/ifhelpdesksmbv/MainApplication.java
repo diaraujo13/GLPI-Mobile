@@ -3,6 +3,7 @@ package com.ifhelpdesksmbv;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.BV.LinearGradient.LinearGradientPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -26,8 +27,9 @@ public class MainApplication extends NavigationApplication {
          // Add additional packages you require here
          // No need to add RnnPackage and MainReactPackage
          return Arrays.<ReactPackage>asList(
-             new VectorIconsPackage(),
-             new SQLitePluginPackage()
+                new VectorIconsPackage(),
+                new SQLitePluginPackage(),
+                new LinearGradientPackage()
          );
     }
 

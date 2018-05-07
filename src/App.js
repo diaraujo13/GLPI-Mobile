@@ -23,39 +23,14 @@ Navigation.registerComponent('Details', () => Details, MainStore, Provider);
 
 
 
-Promise.all([
-Icon.getImageSource("view-grid", 30),
-Icon.getImageSource("history", 30),
-Icon.getImageSource("magnify", 30),
-]).then(results => {
 
-
-Navigation.startTabBasedApp({
-  tabs: [
-    {
-      title:'Sumário',
-      label: 'Sumário', // tab label as appears under the icon in iOS (optional)
+Navigation.startSingleScreenApp( {
+  screen: {
+      title:'Login',
       screen: 'start', // unique ID registered with Navigation.registerScreen
-      icon: results[0], // local image asset for the tab icon unselected state (optional on iOS)
-    }, 
-    {
-      title:'Histórico',
-      label: "Histórico", // tab label as appears under the icon in iOS (optional)
-      screen: 'Historico', // unique ID registered with Navigation.registerScreen
-      icon: results[1]
-    },
-    {
-      title:'Buscar',
-      label: "Buscar", // tab label as appears under the icon in iOS (optional)
-      screen: 'Favoritos', // unique ID registered with Navigation.registerScreen
-      icon: results[2]
-    }
-  ],
+  }
+});
 
-  appStyle: {
-    keepStyleAcrossPush: true
-  }});
-})
 
 
 
