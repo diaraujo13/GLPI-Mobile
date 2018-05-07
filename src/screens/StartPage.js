@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ScrollView, Image, TouchableOpacity, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
+import { Platform, ScrollView, Keyboard, Image, TouchableOpacity, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
 import startTab from '../nav/tabs';
 import { Navigation } from 'react-native-navigation';
 import { connect } from 'react-redux';
@@ -50,7 +50,9 @@ class Start extends Component {
         onStartShouldSetResponder={ (e) => true}
         onResponderRelease={ (e) => Keyboard.dismiss()}
         style={styles.screen}>
-           <View style={styles.container}>
+        <Image style={[styles.image, { width: this.width-30}]}
+                      source={require('../assets/logo.png')}/>
+        <View style={styles.container}>
           
           <RkTextInput rkType='rounded' placeholder='Matrícula SIAPE'/>
           <RkTextInput rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
@@ -90,7 +92,7 @@ class Start extends Component {
     screen: {
       flex: 1,
       alignItems: 'center',
-      backgroundColor: '#ccc'
+      backgroundColor: '#FFF'
     },
     image: {
       resizeMode: 'contain',

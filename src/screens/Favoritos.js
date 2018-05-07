@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Platform, TextInput, StatusBar, ScrollView, TouchableOpacity, FlatList, StyleSheet, Text, View } from 'react-native';
-import { Container, Content, Header, Item, Input, Icon, Button } from 'native-base';
 import { setSearchKey, querySearch } from '../actions/bulas/search';
 import {connect} from 'react-redux';
 import { RkCard } from 'react-native-ui-kitten';

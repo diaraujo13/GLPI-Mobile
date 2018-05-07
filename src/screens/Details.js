@@ -5,13 +5,8 @@ import { Platform,  ScrollView, Linking, ActivityIndicator, TouchableOpacity, Fl
 import { bulaDetails } from '../actions/bulas/bulas';
 import { addHistory } from '../actions/bulas/historico';
 import { setLoading } from '../actions/util';
-import Collapsible from 'react-native-collapsible';
-import Accordion from 'react-native-collapsible/Accordion';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
-  Form, Title, Segment, Spinner, Item, Input, Label, Container, Header, Card,Body, 
-  CardItem, Button, Root, Content,  ActionSheet, Text, H2, H3 } from 'native-base';
 
 class Details extends Component {
 
