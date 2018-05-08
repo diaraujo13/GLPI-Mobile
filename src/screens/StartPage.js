@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Platform, ScrollView, Keyboard, Image, TouchableOpacity, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
+import { Platform, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
 import startTab from '../nav/tabs';
 import { Navigation } from 'react-native-navigation';
 import { connect } from 'react-redux';
 import SQLite from 'react-native-sqlite-storage';
 import { getBulas, setCat, resetPage } from '../actions/bulas/bulas';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import {LinearGradient} from 'react-native-linear-gradient';
 
 
 import {
@@ -16,9 +17,8 @@ import {
   RkStyleSheet,
   RkTheme
 } from 'react-native-ui-kitten';  
-
-
-const categoriesArray = "ABCDEFGHIJKLMNOPQRSTUVWXY".split("");
+import { API_URL, CONTENT_TYPE, APP_TOKEN } from '../config/const';
+import { Base64 } from '../config/base64';
 
 class Start extends Component {
   static navigatorStyle = {
@@ -32,17 +32,58 @@ class Start extends Component {
    width = +Dimensions.get('window').width;
    
    constructor(){
-     super();
+      super();
+
+      this.state = {
+        siape: '',
+        pass: '',
+        carregando: false
+      }
+
     }
     
     componentWillMount(){
-    
     }
 
     componentDidMount() {
     }
 
-   
+    genBase64 = () => {
+      return Base64.encode(this.state.siape+':'+this.state.pass);
+    }
+    
+    authenticateUser = () => {
+
+      console.log(this.state, this.genBase64())
+      let credentials = this.genBase64();
+      this.setState({carregando: true});
+
+
+      var myHeaders = new Headers();
+
+      myHeaders.append("Accept", "application/json");
+      myHeaders.append("Content-Type", "application/json");
+      myHeaders.append("Authorization", 'Basic ' + credentials);
+      myHeaders.append("App-Token", '1cxfro050vse2qqr827ys1pd48onu78n4nh0lokj');
+      
+      fetch(API_URL+'/initSession', {
+        method: 'GET',
+        headers: myHeaders,
+        cors: true
+      })
+      .then(rawData => rawData.json())
+      .then(data => {
+            console.log(data);
+            this.setState({carregando: false})
+            Alert.alert('Sucesso', 'Bem vindo!');
+      })
+      .catch( err => {
+           console.log(err);
+           Alert.alert('Oops', 'Não foi possível criar uma nova conta');
+      }).then( () => { 
+           this.setState({carregando: false})
+      });
+    }
 
     render() {
       return (
@@ -52,23 +93,24 @@ class Start extends Component {
         style={styles.screen}>
         <Image style={[styles.image, { width: this.width-30}]}
                       source={require('../assets/logo.png')}/>
-        <View style={styles.container}>
-          
-          <RkTextInput rkType='rounded' placeholder='Matrícula SIAPE'/>
-          <RkTextInput rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
-          <RkButton onPress={() => {
-            this.props.navigation.goBack()
-          }} rkType='large' style={styles.save} text='LOGIN'/>
-          <View style={styles.footer}>
-            <View style={styles.textRow}>
-              <RkText rkType='primary3'>Don’t have an account?</RkText>
-              <RkButton rkType='clear'>
-                <RkText rkType='header6' onPress={() => this.props.navigation.navigate('SignUp')}> Sign up
-                  now </RkText>
-              </RkButton>
-            </View>
-          </View>
-        </View>
+        <View style={{flex: 1, padding: 20,  alignContent:'center', alignItems:'center', justifyContent:'center'}}>
+         <RkText style={{  backgroundColor: 'transparent',
+        color: '#000', fontSize: 26, fontWeight: 'bold',}}>
+          <FontAwesome name='edit' size={32} color={'rgb(56,126,220)'} ></FontAwesome> Sistema de Chamados - STI 
+          </RkText>
+         <RkText style={{ marginVertical: 10,   backgroundColor: 'transparent',
+        color: '#ccc'}}>
+            Utilize suas credenciais do SUAP: Sistema Unificado de Administração Pública para acessar o sistema
+          </RkText>
+          <RkTextInput onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
+          <RkTextInput onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
+
+          <RkButton onPress={this.authenticateUser} rkType='stretch' style={[{ alignItems: 'center', paddingVertical: 0, paddingHorizontal: 0, borderRadius: 20, justifyContent:'center' }]} >
+            <RkText style={{  backgroundColor: 'transparent', color: '#fff'}}> ENTRAR NO SISTEMA </RkText>
+          </RkButton>
+         </View>
+
+        
       </RkAvoidKeyboard>
       )
     }
