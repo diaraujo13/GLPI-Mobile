@@ -73,9 +73,13 @@ class Start extends Component {
       })
       .then(rawData => rawData.json())
       .then(data => {
-            console.log(data);
-            this.setState({carregando: false})
-            Alert.alert('Sucesso', 'Bem vindo!');
+            this.setState({carregando: false});
+
+            if ( typeof data === 'Object' && typeof data.session_token !== 'undefined'){
+              Alert.alert('Sucesso', 'Seja bem vindo!');
+            }else{
+              Alert.alert('Erro', 'Verifique suas credenciais ou tente novamente mais tarde!');
+            }
       })
       .catch( err => {
            console.log(err);
