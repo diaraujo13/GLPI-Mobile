@@ -11,15 +11,15 @@ import Favoritos from './screens/Favoritos';
 
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Details from './screens/Details';
+import NewTicket from './screens/NewTicket';
+import ListTicket from './screens/ListTicket';
 
 const MainStore = store();
 
 // Registro das telas para receberem um identificador
 Navigation.registerComponent('start', () => Start, MainStore, Provider);
-Navigation.registerComponent('BulaList', () => BulaList, MainStore, Provider);
-Navigation.registerComponent('Historico', () => Historico, MainStore, Provider);
-Navigation.registerComponent('Favoritos', () => Favoritos, MainStore, Provider);
-Navigation.registerComponent('Details', () => Details, MainStore, Provider);
+Navigation.registerComponent('NewTicket', () => NewTicket, MainStore, Provider);
+Navigation.registerComponent('ListTicket', () => ListTicket, MainStore, Provider);
 
 
 

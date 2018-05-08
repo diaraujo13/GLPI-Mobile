@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import { Platform, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
-import startTab from '../nav/tabs';
+import { Platform, ActivityIndicator, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
+import startTabs from '../nav/tabs';
 import { Navigation } from 'react-native-navigation';
 import { connect } from 'react-redux';
 import SQLite from 'react-native-sqlite-storage';
@@ -74,9 +74,11 @@ class Start extends Component {
       .then(rawData => rawData.json())
       .then(data => {
             this.setState({carregando: false});
-
-            if ( typeof data === 'Object' && typeof data.session_token !== 'undefined'){
+             console.log(typeof data, data, data.session_token)
+            if ( typeof data === 'object' && typeof data.session_token === 'string'){
               Alert.alert('Sucesso', 'Seja bem vindo!');
+
+              startTabs();
             }else{
               Alert.alert('Erro', 'Verifique suas credenciais ou tente novamente mais tarde!');
             }
@@ -109,9 +111,15 @@ class Start extends Component {
           <RkTextInput onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
           <RkTextInput onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
 
-          <RkButton onPress={this.authenticateUser} rkType='stretch' style={[{ alignItems: 'center', paddingVertical: 0, paddingHorizontal: 0, borderRadius: 20, justifyContent:'center' }]} >
-            <RkText style={{  backgroundColor: 'transparent', color: '#fff'}}> ENTRAR NO SISTEMA </RkText>
-          </RkButton>
+          {
+            this.state.carregando ? (
+              <ActivityIndicator></ActivityIndicator>
+            ):(
+              <RkButton onPress={this.authenticateUser} rkType='stretch' style={[{ alignItems: 'center', paddingVertical: 0, paddingHorizontal: 0, borderRadius: 20, justifyContent:'center' }]} >
+              <RkText style={{  backgroundColor: 'transparent', color: '#fff'}}> ENTRAR NO SISTEMA </RkText>
+            </RkButton>
+            )
+          }
          </View>
 
         
