@@ -12,7 +12,6 @@ import com.facebook.soloader.SoLoader;
 
 import java.util.Arrays;
 import java.util.List;
-import org.pgsqlite.SQLitePluginPackage;
 import com.reactnativenavigation.NavigationApplication;
 
 public class MainApplication extends NavigationApplication {
@@ -28,7 +27,6 @@ public class MainApplication extends NavigationApplication {
          // No need to add RnnPackage and MainReactPackage
          return Arrays.<ReactPackage>asList(
                 new VectorIconsPackage(),
-                new SQLitePluginPackage(),
                 new LinearGradientPackage()
          );
     }

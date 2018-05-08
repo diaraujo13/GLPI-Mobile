@@ -163,7 +163,6 @@ dependencies {
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-navigation')
     compile project(':react-native-linear-gradient')
-    compile project(':react-native-sqlite-storage')
     compile project(':react-native-vector-icons')
 }
 
