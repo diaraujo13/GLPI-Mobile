@@ -8,46 +8,33 @@ const startTabs = () => {
         Icon.getImageSource(Platform.OS === 'android' ? "md-share-alt" : "ios-share", 30),
         Icon.getImageSource(Platform.OS === 'android' ? "md-menu" : "ios-menu", 30)
     ]).then(sources => {
-        Navigation.startTabBasedApp({
-            tabs: [
-                {
-                    screen: "NewTicket",
-                    label: "Find Place",
-                    title: "Find Place",
-                    icon: sources[0],
-                    navigatorButtons: {
-                        leftButtons: [
-                            {
-                                icon: sources[2],
-                                title: "Menu",
-                                id: "sideDrawerToggle"
-                            }
-                        ]
-                    }
-                },
-                {
-                    screen: "ListTicket",
-                    label: "Share Place",
-                    title: "Share Place",
-                    icon: sources[1],
-                    navigatorButtons: {
-                        leftButtons: [
-                            {
-                                icon: sources[2],
-                                title: "Menu",
-                                id: "sideDrawerToggle"
-                            }
-                        ]
-                    }
+
+
+        Navigation.startSingleScreenApp( {
+            screen: {
+                title:'Início',
+                screen: 'NewTicket', // unique ID registered with Navigation.registerScreen,
+                navigatorButtons: {
+                    leftButtons: [
+                        {
+                            icon: sources[2],
+                            title: "Menu",
+                            id: "sideMenu"
+                        }
+                    ]
                 }
-            ],
-            tabsStyle: {
-                tabBarSelectedButtonColor: "orange"
-            },  
-            appStyle: {
-                tabBarSelectedButtonColor: "orange"
             },
-        });
+            drawer: {
+                left: {
+                    screen: "SideDrawer",
+                    id: 'sideMenu'
+                }
+            },
+
+          });
+
+
+      
     });
 };
 

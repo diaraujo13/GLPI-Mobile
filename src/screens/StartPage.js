@@ -20,6 +20,9 @@ import {
 import { API_URL, CONTENT_TYPE, APP_TOKEN } from '../config/const';
 import { Base64 } from '../config/base64';
 
+/**
+ * Ponto de partida para a verificação de usuário logado ou não
+ */
 class Start extends Component {
   static navigatorStyle = {
 
@@ -130,14 +133,10 @@ class Start extends Component {
 
   /** listen state */
   const mapStateToProps = (state) => ({
-    bulas: state.bulas.bulas 
   })
   
   /** dispatch actions */
   const mapDispatchToProps = dispatch => ({
-    loadBulas: (page, cat) => dispatch(getBulas(page, cat)),
-    setCat: (cat) => dispatch(setCat(cat)),
-    resetPage: () => dispatch(resetPage()),
   });
   
 

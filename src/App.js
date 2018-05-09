@@ -13,11 +13,13 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Details from './screens/Details';
 import NewTicket from './screens/NewTicket';
 import ListTicket from './screens/ListTicket';
+import SideDrawer from './nav/drawer';
 
 const MainStore = store();
 
 // Registro das telas para receberem um identificador
 Navigation.registerComponent('start', () => Start, MainStore, Provider);
+Navigation.registerComponent('SideDrawer', () => SideDrawer, MainStore, Provider);
 Navigation.registerComponent('NewTicket', () => NewTicket, MainStore, Provider);
 Navigation.registerComponent('ListTicket', () => ListTicket, MainStore, Provider);
 
