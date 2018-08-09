@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, View, FlatList } from 'react-native';
+import { Platform, ActivityIndicator, ScrollView, Keyboard, Image, AsyncStorage, TouchableOpacity, Alert, Dimensions, StyleSheet, View, FlatList } from 'react-native';
 import startTabs from '../nav/tabs';
 import { Navigation } from 'react-native-navigation';
 import { connect } from 'react-redux';
 import SQLite from 'react-native-sqlite-storage';
-import { getBulas, setCat, resetPage } from '../actions/bulas/bulas';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {LinearGradient} from 'react-native-linear-gradient';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
@@ -21,6 +20,7 @@ import {
 } from 'react-native-ui-kitten';  
 import { API_URL, CONTENT_TYPE, APP_TOKEN } from '../config/const';
 import { Base64 } from '../config/base64';
+import { setSessionToken } from '../actions/user';
 
 /**
  * Ponto de partida para a verificação de usuário logado ou não
@@ -47,14 +47,20 @@ class Start extends Component {
 
     }
     
-    componentWillMount(){
+    async componentWillMount(){
               
         try {
 
-          const token = await AsyncStorage.getItem('@flightech/user');
+          const siape = await AsyncStorage.getItem('siape');
+          const pass  = await AsyncStorage.getItem('password');
 
-          if (!! token){
-            startTabs();
+          console.log('LOCAL STORAGE', siape, pass);
+
+          if (!! siape && !!pass){
+           await this.setState({
+              siape,
+              pass
+            });
           }
         } catch (error) {
           //Caso ocorra um erro apenas log
@@ -74,11 +80,12 @@ class Start extends Component {
       return Base64.encode(this.state.siape+':'+this.state.pass);
     }
     
-    authenticateUser = () => {
+    authenticateUser =  () => {
 
-      console.log(this.state, this.genBase64())
+      // console.log(this.state, this.genBase64());
+
+
       let credentials = this.genBase64();
-      this.setState({carregando: true});
 
 
       var myHeaders = new Headers();
@@ -94,26 +101,34 @@ class Start extends Component {
         cors: true
       })
       .then(rawData => rawData.json())
-      .then(async data => {
+      .then( async data => {
         
-        
+        console.log(data);
+
         if ( typeof data === 'object' && typeof data.session_token === 'string'){
           try {
+            console.log('ok');
+            
+            //Para deixar salvo
+            await AsyncStorage.setItem('siape', this.state.siape);
           
-            await AsyncStorage.setItem('@IF:token', data.session_token);
-          
+            await AsyncStorage.setItem('password', this.state.pass);
+
+            //Deixa disponível globalmente o valor do token
+            this.props.setToken(data.session_token);
+
             // Se ocorrer com sucesso
             startTabs();
+            
           
           } catch (error) {
           
             throw new Error(error);
           
-          }
-
+          } 
         }else{
           Toast.show({
-                text: err.message || 'Ocorreu um erro desconhecido! Tente novamente!',
+                text:  'Ocorreu um erro desconhecido! Tente novamente!',
                 buttonText: 'Certo',
                 type: "danger"
           });
@@ -150,8 +165,8 @@ class Start extends Component {
         color: '#ccc'}}>
             Utilize suas credenciais do SUAP: Sistema Unificado de Administração Pública para acessar o sistema
           </RkText>
-          <RkTextInput onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
-          <RkTextInput onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
+          <RkTextInput value={this.state.siape} onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
+          <RkTextInput value={this.state.pass} onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
 
           {
             this.state.carregando ? (
@@ -174,10 +189,12 @@ class Start extends Component {
 
   /** listen state */
   const mapStateToProps = (state) => ({
+    userConfig: state.user
   })
   
   /** dispatch actions */
   const mapDispatchToProps = dispatch => ({
+    setToken: (token) => dispatch(setSessionToken(token))
   });
   
 

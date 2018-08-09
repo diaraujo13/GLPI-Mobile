@@ -19,8 +19,8 @@ import { Platform, StyleSheet, View, Dimensions, Image } from 'react-native';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
 CardItem, Button, Content, Icon, ActionSheet, Text } from 'native-base';
-
-export default class ListTicket extends Component {
+import { connect } from 'react-redux';
+class ListTicket extends Component {
    state = {
      tickets: []
    };
@@ -68,11 +68,15 @@ export default class ListTicket extends Component {
      <Root>
       <Container>
       <Content>
+
+        <Text>{JSON.stringify(this.props.userConfig)}</Text>
+
+        
           <List>
             {this.state.tickets.map( el => {
                 return (
                     <ListItem thumbnail>
-                       <Text>TESTE</Text>
+                       <Text>{JSON.stringify(this.props.userConfig)}</Text>
                     </ListItem>
                 )
             })}
@@ -84,3 +88,17 @@ export default class ListTicket extends Component {
    }
   }
 }
+
+ /** listen state */
+const mapStateToProps = (state) => ({
+  userConfig: state.user
+});
+
+/** dispatch actions */
+const mapDispatchToProps = dispatch => ({
+  setToken: (token) => dispatch(setSessionToken(token))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ListTicket)
+
+
