@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Platform, ActivityIndicator, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, Text, View, FlatList } from 'react-native';
+import { Platform, ActivityIndicator, ScrollView, Keyboard, Image, TouchableOpacity, Alert, Dimensions, StyleSheet, View, FlatList } from 'react-native';
 import startTabs from '../nav/tabs';
 import { Navigation } from 'react-native-navigation';
 import { connect } from 'react-redux';
@@ -7,7 +7,9 @@ import SQLite from 'react-native-sqlite-storage';
 import { getBulas, setCat, resetPage } from '../actions/bulas/bulas';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {LinearGradient} from 'react-native-linear-gradient';
-
+import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
+  Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
+  CardItem, Button, Content, Icon, ActionSheet, Text, Root } from 'native-base';
 
 import {
   RkButton,
@@ -40,12 +42,29 @@ class Start extends Component {
       this.state = {
         siape: '',
         pass: '',
-        carregando: false
+        carregando: true
       }
 
     }
     
     componentWillMount(){
+              
+        try {
+
+          const token = await AsyncStorage.getItem('@flightech/user');
+
+          if (!! token){
+            startTabs();
+          }
+        } catch (error) {
+          //Caso ocorra um erro apenas log
+          console.log(error);
+        } finally {
+          this.setState({
+            carregando: false,
+          });
+        }
+
     }
 
     componentDidMount() {
@@ -75,20 +94,38 @@ class Start extends Component {
         cors: true
       })
       .then(rawData => rawData.json())
-      .then(data => {
-            this.setState({carregando: false});
-             console.log(typeof data, data, data.session_token)
-            if ( typeof data === 'object' && typeof data.session_token === 'string'){
-              Alert.alert('Sucesso', 'Seja bem vindo!');
+      .then(async data => {
+        
+        
+        if ( typeof data === 'object' && typeof data.session_token === 'string'){
+          try {
+          
+            await AsyncStorage.setItem('@IF:token', data.session_token);
+          
+            // Se ocorrer com sucesso
+            startTabs();
+          
+          } catch (error) {
+          
+            throw new Error(error);
+          
+          }
 
-              startTabs();
-            }else{
-              Alert.alert('Erro', 'Verifique suas credenciais ou tente novamente mais tarde!');
-            }
+        }else{
+          Toast.show({
+                text: err.message || 'Ocorreu um erro desconhecido! Tente novamente!',
+                buttonText: 'Certo',
+                type: "danger"
+          });
+        }
       })
       .catch( err => {
-           console.log(err);
-           Alert.alert('Oops', 'Não foi possível criar uma nova conta');
+        console.log(err);
+        Toast.show({
+            text: err.message || 'Ocorreu um erro desconhecido!',
+            buttonText: 'Certo',
+            type: "danger"
+        });
       }).then( () => { 
            this.setState({carregando: false})
       });
@@ -100,6 +137,8 @@ class Start extends Component {
         onStartShouldSetResponder={ (e) => true}
         onResponderRelease={ (e) => Keyboard.dismiss()}
         style={styles.screen}>
+        <Root>
+          
         <Image style={[styles.image, { width: this.width-30}]}
                       source={require('../assets/logo.png')}/>
         <View style={{flex: 1, padding: 20,  alignContent:'center', alignItems:'center', justifyContent:'center'}}>
@@ -124,6 +163,8 @@ class Start extends Component {
             )
           }
          </View>
+         
+        </Root>
 
         
       </RkAvoidKeyboard>

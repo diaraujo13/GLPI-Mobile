@@ -21,17 +21,66 @@ Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body,
 CardItem, Button, Content, Icon, ActionSheet, Text } from 'native-base';
 
 export default class ListTicket extends Component {
-   state = {};
+   state = {
+     tickets: []
+   };
 
   constructor(){
     super();
   }
 
+  componentDidMount(){
+    this.GetTickets();
+  }
+
+  GetTickets = () => {
+    fetch(MAIN_URL +'/client-aircraft-list/5b1a38f52da1fe545f57446a', {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(rawData => rawData.json())
+    .then(data => {
+          this.setState({tickets: data})
+    })
+    .catch( err => {
+        console.log(err);            
+        Toast.show({
+            text: err.message || 'Ocorreu um erro desconhecido ao carregar a lista!',
+            buttonText: 'Certo',
+            type: "danger"
+        });
+    }).then( () => { 
+        this.setState({carregando: false})
+    });
+  }
   render() {
+    if(this.state.carregando){
+      return (<View style={{backgroundColor: "white", flex: 1, alignItems:'center', justifyContent:'center'}}>
+        <ActivityIndicator>
+        </ActivityIndicator>      
+        </View>
+        );
+    }else {
     return (
-      <View>
-        <Text> My Component ListTicket </Text>
-      </View>
+     <Root>
+      <Container>
+      <Content>
+          <List>
+            {this.state.tickets.map( el => {
+                return (
+                    <ListItem thumbnail>
+                       <Text>TESTE</Text>
+                    </ListItem>
+                )
+            })}
+          </List>
+        </Content>
+      </Container>
+    </Root>
     );
+   }
   }
 }
