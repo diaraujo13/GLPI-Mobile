@@ -15,16 +15,17 @@
 */
 
 import React, { Component } from 'react';
-import { Platform, StyleSheet, View, Dimensions, Image } from 'react-native';
+import { Platform, StyleSheet, View, Dimensions, Image, ActivityIndicator } from 'react-native';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
-CardItem, Button, Content, Root, Icon, ActionSheet, Text } from 'native-base';
+CardItem, Button, Content, Root, Icon, ActionSheet, Text, Separator, H1, H2, H3, H4} from 'native-base';
 import { connect } from 'react-redux';
 import { API_URL } from '../config/const';
 class ListTicket extends Component {
    state = {
-     tickets: [],
-     userConfig: ''
+     tickets_open: [],
+     tickets_closed: [],
+     carregando: true
    };
 
   constructor(){
@@ -40,9 +41,40 @@ class ListTicket extends Component {
   }
 
 
-  GetTickets = () => {
-   
+  GetTickets = async () => {
+
+    const userId = this.props.userObj.glpiID;
+    const criteria_open = `/search/Ticket/?order=DESC&criteria[0][itemtype]=Ticket&criteria[0][field]=12&criteria[0][searchtype]=contains&criteria[0][value]=1&criteria[2][link]=OR&criteria[2][itemtype]=Ticket&criteria[2][field]=12&criteria[2][searchtype]=contains&criteria[2][value]=2&criteria[3][link]=OR&criteria[3][itemtype]=Ticket&criteria[3][field]=12&criteria[3][searchtype]=contains&criteria[3][value]=3&criteria[4][link]=OR&criteria[4][itemtype]=Ticket&criteria[4][field]=12&criteria[4][searchtype]=contains&criteria[4][value]=4&criteria[1][link]=AND&criteria[1][itemtype]=Ticket&criteria[1][field]=4&criteria[1][searchtype]=equals&criteria[1][value]=${userId}&forcedisplay[0]=12&forcedisplay[0]=21&forcedisplay[2]=15`;
+    const criteria_closed = `/search/Ticket/?order=DESC&criteria[0][itemtype]=Ticket&criteria[0][field]=12&criteria[0][searchtype]=contains&criteria[0][value]=5&criteria[2][link]=OR&criteria[2][itemtype]=Ticket&criteria[2][field]=12&criteria[2][searchtype]=contains&criteria[2][value]=6&criteria[1][itemtype]=Ticket&criteria[1][link]=AND&criteria[1][field]=4&criteria[1][searchtype]=equals&criteria[1][value]=${userId}&forcedisplay[0]=12&forcedisplay[0]=21&forcedisplay[2]=15`;
+
+    let reqs = await Promise.all([
+        await fetch (API_URL + criteria_open + '&session_token=' + this.props.token).then(el=>el.json()),
+        await fetch (API_URL + criteria_closed + '&session_token=' + this.props.token).then(el=>el.json())
+    ]);
+
+    if (typeof reqs[0].data !== 'undefined'){
+      
+      this.setState({
+        tickets_open:     reqs[0].data,
+        tickets_closed:   reqs[1].data,
+        carregando:       false
+      });
+
+    } else {
+
+      Toast.show({
+        text:  'Ocorreu um erro desconhecido! Tente novamente!',
+        buttonText: 'Certo',
+        type: "danger"
+      });
+      
+      this.setState({
+          carregando: false
+      });
+    }
+
   }
+
   render() {
     if(this.state.carregando){
       return (<View style={{backgroundColor: "white", flex: 1, alignItems:'center', justifyContent:'center'}}>
@@ -54,16 +86,32 @@ class ListTicket extends Component {
     return (
      <Root>
       <Container>
-      <Content>
+      <Content >
 
-        <Text>{JSON.stringify(this.props.userConfig)}</Text>
-
-        
+      <Separator bordered>
+          <H3 style={{fontWeight:'bold'}}><Text style={{color:'green'}}>•</Text> EM ABERTO</H3>
+        </Separator>
           <List>
-            {this.state.tickets.map( el => {
+            {this.state.tickets_open.map( el => {
                 return (
-                    <ListItem thumbnail>
-                       <Text>{JSON.stringify(this.props.userObj)}</Text>
+                    <ListItem>
+                    <Text style={{fontWeight:'bold'}}>{el["1"]}</Text>
+                    <Text note>{el["21"]}</Text>
+                    </ListItem>
+                )
+            })}
+          </List>
+
+      <Separator bordered>
+          <H3 style={{fontWeight:'bold'}}><Text style={{color:'#ddd'}}>•</Text> CONCLUÍDOS</H3>
+      </Separator>
+
+          <List>
+            {this.state.tickets_closed.map( el => {
+                return (
+                    <ListItem >
+                      <Text style={{fontWeight:'bold'}}>{el["1"]}</Text>
+                      <Text note>{el["21"]}</Text>
                     </ListItem>
                 )
             })}
@@ -79,7 +127,8 @@ class ListTicket extends Component {
  /** listen state */
 const mapStateToProps = (state) => ({
   userConfig: state.user,
-  userObj: state.userObj
+  userObj: state.user.userObj,
+  token: state.user.token
 });
 
 /** dispatch actions */
