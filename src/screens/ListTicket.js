@@ -109,9 +109,12 @@ class ListTicket extends Component {
           <List>
             {this.state.tickets_closed.map( el => {
                 return (
-                    <ListItem >
-                      <Text style={{fontWeight:'bold'}}>{el["1"]}</Text>
+                    <ListItem style={{flex: 1, flexDirection:'column', justifyContent:'flex-start', alignItems:'flex-start'}}>
+
+                      <Text style={{flex: 1, textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
+                      <View>
                       <Text note>{el["21"]}</Text>
+                      </View>
                     </ListItem>
                 )
             })}
