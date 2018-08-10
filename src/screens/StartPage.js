@@ -20,7 +20,7 @@ import {
 } from 'react-native-ui-kitten';  
 import { API_URL, CONTENT_TYPE, APP_TOKEN } from '../config/const';
 import { Base64 } from '../config/base64';
-import { setSessionToken } from '../actions/user';
+import { setSessionToken, setUserObject } from '../actions/user';
 
 /**
  * Ponto de partida para a verificação de usuário logado ou não
@@ -42,7 +42,8 @@ class Start extends Component {
       this.state = {
         siape: '',
         pass: '',
-        carregando: true
+        bootstrapping: true,
+        carregando: false
       }
 
     }
@@ -67,7 +68,7 @@ class Start extends Component {
           console.log(error);
         } finally {
           this.setState({
-            carregando: false,
+            bootstrapping: false,
           });
         }
 
@@ -79,11 +80,30 @@ class Start extends Component {
     genBase64 = () => {
       return Base64.encode(this.state.siape+':'+this.state.pass);
     }
+
+    GetFullProfile = async token => {
+      
+      let result = await fetch(API_URL + '/getFullSession/', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          "Session-Token": token,
+        }
+      });
+    
+      let resultCvt = await result.json();
+      
+      console.log(resultCvt);
+
+      return resultCvt;
+    }
     
     authenticateUser =  () => {
 
       // console.log(this.state, this.genBase64());
 
+      this.setState({carregando: true});
 
       let credentials = this.genBase64();
 
@@ -93,7 +113,6 @@ class Start extends Component {
       myHeaders.append("Accept", "application/json");
       myHeaders.append("Content-Type", "application/json");
       myHeaders.append("Authorization", 'Basic ' + credentials);
-      myHeaders.append("App-Token", '1cxfro050vse2qqr827ys1pd48onu78n4nh0lokj');
       
       fetch(API_URL+'/initSession', {
         method: 'GET',
@@ -104,18 +123,35 @@ class Start extends Component {
       .then( async data => {
         
         console.log(data);
-
         if ( typeof data === 'object' && typeof data.session_token === 'string'){
           try {
-            console.log('ok');
             
+            let {session_token} = data;
+
             //Para deixar salvo
             await AsyncStorage.setItem('siape', this.state.siape);
           
             await AsyncStorage.setItem('password', this.state.pass);
 
             //Deixa disponível globalmente o valor do token
-            this.props.setToken(data.session_token);
+            this.props.setToken(session_token);
+
+            let result = await fetch(API_URL + '/getFullSession/', {
+              method: 'GET',
+              headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                "Session-Token": session_token,
+              }
+            });
+          
+            let profileData = await result.json();
+            
+
+            if(!!data)
+              this.props.setUser(profileData.session);
+            else
+              throw new Error('Erro ao carregar perfil');
 
             // Se ocorrer com sucesso
             startTabs();
@@ -126,6 +162,8 @@ class Start extends Component {
             throw new Error(error);
           
           } 
+
+
         }else{
           Toast.show({
                 text:  'Ocorreu um erro desconhecido! Tente novamente!',
@@ -147,43 +185,51 @@ class Start extends Component {
     }
 
     render() {
-      return (
-        <RkAvoidKeyboard
-        onStartShouldSetResponder={ (e) => true}
-        onResponderRelease={ (e) => Keyboard.dismiss()}
-        style={styles.screen}>
-        <Root>
+      if(this.state.bootstrapping){
+        return (
+        <View style={{backgroundColor: "white", flex: 1, alignItems:'center', justifyContent:'center'}}>
+          <ActivityIndicator />
+        </View>
+        );
+      }else{
+        return (
+          <RkAvoidKeyboard
+          onStartShouldSetResponder={ (e) => true}
+          onResponderRelease={ (e) => Keyboard.dismiss()}
+          style={styles.screen}>
+          <Root>
+            
+          <Image style={[styles.image, { width: this.width-30}]}
+                        source={require('../assets/logo.png')}/>
+          <View style={{flex: 1, padding: 20,  alignContent:'center', alignItems:'center', justifyContent:'center'}}>
+          <RkText style={{  backgroundColor: 'transparent',
+          color: '#000', fontSize: 26, fontWeight: 'bold',}}>
+            <FontAwesome name='edit' size={32} color={'rgb(56,126,220)'} ></FontAwesome> Sistema de Chamados - STI 
+            </RkText>
+          <RkText style={{ marginVertical: 10,   backgroundColor: 'transparent',
+          color: '#ccc'}}>
+              Utilize suas credenciais do SUAP: Sistema Unificado de Administração Pública para acessar o sistema
+            </RkText>
+            <RkTextInput value={this.state.siape} onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
+            <RkTextInput value={this.state.pass} onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
+
+            {
+              this.state.carregando ? (
+                <ActivityIndicator></ActivityIndicator>
+              ):(
+                <RkButton onPress={this.authenticateUser} rkType='stretch' style={[{ alignItems: 'center', paddingVertical: 0, paddingHorizontal: 0, borderRadius: 20, justifyContent:'center' }]} >
+                <RkText style={{  backgroundColor: 'transparent', color: '#fff'}}> ENTRAR NO SISTEMA </RkText>
+              </RkButton>
+              )
+            }
+          </View>
           
-        <Image style={[styles.image, { width: this.width-30}]}
-                      source={require('../assets/logo.png')}/>
-        <View style={{flex: 1, padding: 20,  alignContent:'center', alignItems:'center', justifyContent:'center'}}>
-         <RkText style={{  backgroundColor: 'transparent',
-        color: '#000', fontSize: 26, fontWeight: 'bold',}}>
-          <FontAwesome name='edit' size={32} color={'rgb(56,126,220)'} ></FontAwesome> Sistema de Chamados - STI 
-          </RkText>
-         <RkText style={{ marginVertical: 10,   backgroundColor: 'transparent',
-        color: '#ccc'}}>
-            Utilize suas credenciais do SUAP: Sistema Unificado de Administração Pública para acessar o sistema
-          </RkText>
-          <RkTextInput value={this.state.siape} onChangeText={ siape => this.setState({siape})} rkType='rounded' placeholder='Matrícula SIAPE'/>
-          <RkTextInput value={this.state.pass} onChangeText={ pass => this.setState({pass})} rkType='rounded' placeholder='Senha' secureTextEntry={true}/>
+          </Root>
 
-          {
-            this.state.carregando ? (
-              <ActivityIndicator></ActivityIndicator>
-            ):(
-              <RkButton onPress={this.authenticateUser} rkType='stretch' style={[{ alignItems: 'center', paddingVertical: 0, paddingHorizontal: 0, borderRadius: 20, justifyContent:'center' }]} >
-              <RkText style={{  backgroundColor: 'transparent', color: '#fff'}}> ENTRAR NO SISTEMA </RkText>
-            </RkButton>
-            )
-          }
-         </View>
-         
-        </Root>
-
-        
-      </RkAvoidKeyboard>
-      )
+          
+        </RkAvoidKeyboard>
+        )
+      }
     }
   }
 
@@ -194,7 +240,8 @@ class Start extends Component {
   
   /** dispatch actions */
   const mapDispatchToProps = dispatch => ({
-    setToken: (token) => dispatch(setSessionToken(token))
+    setToken: (token) => dispatch(setSessionToken(token)),
+    setUser: (user) => dispatch(setUserObject(user))
   });
   
 

@@ -18,11 +18,13 @@ import React, { Component } from 'react';
 import { Platform, StyleSheet, View, Dimensions, Image } from 'react-native';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
-CardItem, Button, Content, Icon, ActionSheet, Text } from 'native-base';
+CardItem, Button, Content, Root, Icon, ActionSheet, Text } from 'native-base';
 import { connect } from 'react-redux';
+import { API_URL } from '../config/const';
 class ListTicket extends Component {
    state = {
-     tickets: []
+     tickets: [],
+     userConfig: ''
    };
 
   constructor(){
@@ -30,31 +32,16 @@ class ListTicket extends Component {
   }
 
   componentDidMount(){
+
+    console.log(this.props);
+
+   
     this.GetTickets();
   }
 
+
   GetTickets = () => {
-    fetch(MAIN_URL +'/client-aircraft-list/5b1a38f52da1fe545f57446a', {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(rawData => rawData.json())
-    .then(data => {
-          this.setState({tickets: data})
-    })
-    .catch( err => {
-        console.log(err);            
-        Toast.show({
-            text: err.message || 'Ocorreu um erro desconhecido ao carregar a lista!',
-            buttonText: 'Certo',
-            type: "danger"
-        });
-    }).then( () => { 
-        this.setState({carregando: false})
-    });
+   
   }
   render() {
     if(this.state.carregando){
@@ -76,7 +63,7 @@ class ListTicket extends Component {
             {this.state.tickets.map( el => {
                 return (
                     <ListItem thumbnail>
-                       <Text>{JSON.stringify(this.props.userConfig)}</Text>
+                       <Text>{JSON.stringify(this.props.userObj)}</Text>
                     </ListItem>
                 )
             })}
@@ -91,12 +78,12 @@ class ListTicket extends Component {
 
  /** listen state */
 const mapStateToProps = (state) => ({
-  userConfig: state.user
+  userConfig: state.user,
+  userObj: state.userObj
 });
 
 /** dispatch actions */
 const mapDispatchToProps = dispatch => ({
-  setToken: (token) => dispatch(setSessionToken(token))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(ListTicket)

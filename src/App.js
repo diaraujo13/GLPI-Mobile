@@ -10,6 +10,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import NewTicket from './screens/NewTicket';
 import ListTicket from './screens/ListTicket';
 import SideDrawer from './nav/drawer';
+import logFetch from './config/logFetch';
+
 
 const MainStore = store();
 

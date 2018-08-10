@@ -1,22 +1,28 @@
-import { GET_TOKEN, SET_TOKEN } from "../actions/types";
+import { GET_TOKEN, SET_TOKEN, SET_USER } from "../actions/types";
 
  
 const initialState = {
    token: '',
    userId: '',
+   userObj: {},
+   
    ticketsId: []
 };
 
 const userReducer = (state = initialState, action) => {
     switch (action.type) {
-      case GET_TOKEN:
-        return state;
-      break;
 
       case SET_TOKEN:
         return {
           ...state,
           token: action.payload
+        }
+      break;
+
+      case SET_USER:
+        return {
+          ...state,
+          userObj: action.payload
         }
       break;
 
