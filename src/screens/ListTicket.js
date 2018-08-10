@@ -21,6 +21,10 @@ Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body,
 CardItem, Button, Content, Root, Icon, ActionSheet, Text, Separator, H1, H2, H3, H4} from 'native-base';
 import { connect } from 'react-redux';
 import { API_URL } from '../config/const';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
+
+
 class ListTicket extends Component {
    state = {
      tickets_open: [],
@@ -110,10 +114,12 @@ class ListTicket extends Component {
             {this.state.tickets_closed.map( el => {
                 return (
                     <ListItem style={{flex: 1, flexDirection:'column', justifyContent:'flex-start', alignItems:'flex-start'}}>
-
-                      <Text style={{flex: 1, textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
+                      <View style={{flexDirection:'row'}} >
+                        <Text style={{flex: 1, textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
+                        <FontAwesome name='edit' size={32} color={'rgb(56,126,220)'} ></FontAwesome> 
+                      </View>
                       <View>
-                      <Text note>{el["21"]}</Text>
+                        <Text note>{el["21"]}</Text>
                       </View>
                     </ListItem>
                 )
