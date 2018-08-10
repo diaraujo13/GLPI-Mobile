@@ -124,7 +124,6 @@ class Start extends Component {
       .then(rawData => rawData.json())
       .then( async data => {
         
-        console.log(data);
         if ( typeof data === 'object' && typeof data.session_token === 'string'){
           try {
             
@@ -143,16 +142,13 @@ class Start extends Component {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
               'session_token': session_token,
-              'Session-Token': session_token,
-              'session-token': session_token
             };
 
-            console.log(objHeader);
 
             //Devido a um bug do GLPI, quando posto no header, o session_token
             //não identificado, coloca-se diretamente na URL como param
             //?session_token= 
-            let result = await fetch(API_URL + '/Ticket/?session_token=' + session_token, {
+            let result = await fetch(API_URL + '/getFullSession/?session_token=' + session_token, {
               headers: objHeader
             });
           
