@@ -21,6 +21,9 @@ import {
 import { API_URL, CONTENT_TYPE, APP_TOKEN } from '../config/const';
 import { Base64 } from '../config/base64';
 import { setSessionToken, setUserObject } from '../actions/user';
+import logFetch from '../config/logFetch';
+
+
 
 /**
  * Ponto de partida para a verificação de usuário logado ou não
@@ -49,7 +52,6 @@ class Start extends Component {
     }
     
     async componentWillMount(){
-              
         try {
 
           const siape = await AsyncStorage.getItem('siape');
@@ -136,27 +138,35 @@ class Start extends Component {
             //Deixa disponível globalmente o valor do token
             this.props.setToken(session_token);
 
-            let result = await fetch(API_URL + '/getFullSession/', {
-              method: 'GET',
-              headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-                "Session-Token": session_token,
-              }
+            
+            let objHeader = {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'session_token': session_token,
+              'Session-Token': session_token,
+              'session-token': session_token
+            };
+
+            console.log(objHeader);
+
+            //Devido a um bug do GLPI, quando posto no header, o session_token
+            //não identificado, coloca-se diretamente na URL como param
+            //?session_token= 
+            let result = await fetch(API_URL + '/Ticket/?session_token=' + session_token, {
+              headers: objHeader
             });
           
             let profileData = await result.json();
             
-
-            if(!!data)
+            if(!!profileData){
               this.props.setUser(profileData.session);
+              
+              // Se ocorrer com sucesso
+              startTabs();
+            }
             else
               throw new Error('Erro ao carregar perfil');
 
-            // Se ocorrer com sucesso
-            startTabs();
-            
-          
           } catch (error) {
           
             throw new Error(error);
