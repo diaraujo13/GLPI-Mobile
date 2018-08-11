@@ -20,8 +20,9 @@ import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail,
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
 CardItem, Button, Content, Root, Icon, ActionSheet, Text, Separator, H1, H2, H3, H4} from 'native-base';
 import { connect } from 'react-redux';
-import { API_URL } from '../config/const';
+import { API_URL, PIC_URL } from '../config/const';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RoundedBadge from '../component/roundedBadge';
 
 
 
@@ -29,7 +30,8 @@ class ListTicket extends Component {
    state = {
      tickets_open: [],
      tickets_closed: [],
-     carregando: true
+     carregando: true,
+     showId: null
    };
 
   constructor(){
@@ -80,6 +82,8 @@ class ListTicket extends Component {
   }
 
   render() {
+
+    
     if(this.state.carregando){
       return (<View style={{backgroundColor: "white", flex: 1, alignItems:'center', justifyContent:'center'}}>
         <ActivityIndicator>
@@ -87,22 +91,63 @@ class ListTicket extends Component {
         </View>
         );
     }else {
+
+    let llData = this.props.userProfile.last_login.split(' ');
+    let llfdata = llData[0].split('-').reverse().toString().replace(/,/g, '-').concat(' ' + llData[1]);
+
+
     return (
      <Root>
       <Container>
       <Content >
+
+        <View  style={{flex: 0, flexDirection:'row'}}>
+          <View style={{flex: 0, padding: 10}} >
+            <Image 
+            style={{height: 100, borderRadius: 50, width: 100, resizeMode:'cover'}}     
+            source={{uri: !!this.props.userProfile.picture ? 'http://200.133.4.158/front/document.send.php?file=_pictures/' + this.props.userProfile.picture : 'https://cdn.cwsplatform.com/assets/no-photo-available.png'}}>
+            </Image>
+          </View>
+          <View style={{flex: 1, justifyContent:'center', padding: 10}}>
+            <H3 style={{fontWeight:'bold'}}>{this.props.userObj.glpifirstname + ' '+ this.props.userObj.glpirealname} </H3>
+          
+            <Text note>Último login: {llfdata}</Text>
+          </View>
+        </View>
 
       <Separator bordered>
           <H3 style={{fontWeight:'bold'}}><Text style={{color:'green'}}>•</Text> EM ABERTO</H3>
         </Separator>
           <List>
             {this.state.tickets_open.map( el => {
-                return (
-                    <ListItem>
-                    <Text style={{fontWeight:'bold'}}>{el["1"]}</Text>
-                    <Text note>{el["21"]}</Text>
-                    </ListItem>
-                )
+                 let fmtData = el["15"].split(' ');
+                 let data = fmtData[0].split('-').reverse().toString().replace(/,/g, '-').concat(' ' + fmtData[1]);
+ 
+                 return (
+                     <ListItem style={{flex: 1, flexDirection:'column', justifyContent:'flex-start', alignItems:'flex-start'}}>
+                       <View style={{flexDirection:'row'}} >
+                       <View style={{flex: 1, flexDirection:'column'}}>
+                         <View style={{flexDirection:'row'}}>
+                             <FontAwesome name='calendar' size={16} style={{marginRight: 5}}></FontAwesome>              
+                             <Text style={{ alignSelf:'flex-start',}} note>Publicado em {data}</Text>
+                         </View>
+                         <Text style={{ alignSelf:'flex-start', textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
+                       </View>
+                         <FontAwesome 
+                         onPress={ () => {
+                           if(this.state.showId == el["2"])
+                             this.setState({ showId: null})
+                           else
+                             this.setState({ showId: el["2"]})
+                         }}
+                         name={this.state.showId == el["2"] ? 'angle-up' : 'angle-down'} size={32} color={'rgb(56,126,220)'} ></FontAwesome> 
+                       </View>
+                       <View style={{ height: this.state.showId == el["2"] ? null : 0 , opacity: this.state.showId == el["2"] ? 1 : 0 }}>
+                         <Text note>{el["21"]}</Text>
+                         <RoundedBadge id={el["12"]}></RoundedBadge>
+                       </View>
+                     </ListItem>
+                 )
             })}
           </List>
 
@@ -112,20 +157,44 @@ class ListTicket extends Component {
 
           <List>
             {this.state.tickets_closed.map( el => {
+                let fmtData = el["15"].split(' ');
+                let data = fmtData[0].split('-').reverse().toString().replace(/,/g, '-').concat(' ' + fmtData[1]);
+
                 return (
                     <ListItem style={{flex: 1, flexDirection:'column', justifyContent:'flex-start', alignItems:'flex-start'}}>
                       <View style={{flexDirection:'row'}} >
-                        <Text style={{flex: 1, textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
-                        <FontAwesome name='edit' size={32} color={'rgb(56,126,220)'} ></FontAwesome> 
+                      <View style={{flex: 1, flexDirection:'column'}}>
+                        <View style={{flexDirection:'row'}}>
+                            <FontAwesome name='calendar' size={16} style={{marginRight: 5}}></FontAwesome>              
+                            <Text style={{ alignSelf:'flex-start',}} note>Publicado em {data}</Text>
+                        </View>
+                        <Text style={{ alignSelf:'flex-start', textAlign:'left', fontWeight:'bold'}}>{el["1"]}</Text>
                       </View>
-                      <View>
+                        <FontAwesome 
+                        onPress={ () => {
+                          if(this.state.showId == el["2"])
+                            this.setState({ showId: null})
+                          else
+                            this.setState({ showId: el["2"]})
+                        }}
+                        name={this.state.showId == el["2"] ? 'angle-up' : 'angle-down'} size={32} color={'rgb(56,126,220)'} ></FontAwesome> 
+                      </View>
+                      <View style={{ height: this.state.showId == el["2"] ? null : 0 , opacity: this.state.showId == el["2"] ? 1 : 0 }}>
                         <Text note>{el["21"]}</Text>
+                        <RoundedBadge id={el["12"]}></RoundedBadge>
+
                       </View>
                     </ListItem>
                 )
             })}
           </List>
         </Content>
+        <Button rounded larger icon light 
+          onPress={ () => Actions.newService()}
+          style={{position:'absolute',  zIndex: 10320101203023,
+          backgroundColor:'#0c9fda',  right: 20, bottom: 20}}>
+            <Icon name='add' style={{ color: '#fff', fontSize: 20,}} color={'white'}/>
+          </Button>
       </Container>
     </Root>
     );
@@ -137,6 +206,7 @@ class ListTicket extends Component {
 const mapStateToProps = (state) => ({
   userConfig: state.user,
   userObj: state.user.userObj,
+  userProfile: state.user.userProfile,
   token: state.user.token
 });
 

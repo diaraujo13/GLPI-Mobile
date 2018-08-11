@@ -5,7 +5,7 @@ const initialState = {
    token: '',
    userId: '',
    userObj: {},
-   
+   userProfile: {},
    ticketsId: []
 };
 
@@ -22,7 +22,8 @@ const userReducer = (state = initialState, action) => {
       case SET_USER:
         return {
           ...state,
-          userObj: action.payload
+          userObj: action.payload.userGLPI,
+          userProfile: action.payload.userProfile
         }
       break;
 

@@ -151,11 +151,21 @@ class Start extends Component {
             let result = await fetch(API_URL + '/getFullSession/?session_token=' + session_token, {
               headers: objHeader
             });
-          
+            
+            
             let profileData = await result.json();
+
+            let resultProfile = await fetch(API_URL + '/User/'+profileData.session.glpiID+'?session_token=' + session_token, {
+              headers: objHeader
+            });
+
+            let resultProfileCvt = await resultProfile.json();
             
             if(!!profileData){
-              this.props.setUser(profileData.session);
+              this.props.setUser({
+                userGLPI: profileData.session,
+                userProfile: resultProfileCvt
+              });
               
               // Se ocorrer com sucesso
               startTabs();

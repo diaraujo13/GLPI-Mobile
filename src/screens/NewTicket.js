@@ -1,6 +1,6 @@
 /*************************************************************************
 *
-*  [2018] Izaías Araújo
+*  [2017] Izaías Araújo
 *  All Rights Reserved.
 *
 * NOTICE:  All information contained herein is, and remains
@@ -14,14 +14,19 @@
 * from Izaías Araújo.
 */
 
-
 import React, { Component } from 'react';
-import { Platform, StyleSheet, View, Dimensions, Image } from 'react-native';
+import { Platform, StyleSheet, View, Dimensions, Image, ActivityIndicator } from 'react-native';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
-CardItem, Button, Content, Icon, ActionSheet, Text } from 'native-base';
+CardItem, Button, Content, Root, Icon, ActionSheet, Text, Separator, H1, H2, H3, H4} from 'native-base';
+import { connect } from 'react-redux';
+import { API_URL, PIC_URL } from '../config/const';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import RoundedBadge from '../component/roundedBadge';
 
-export default class NewTicket extends Component {
+
+
+ class NewTicket extends Component {
    state = {};
 
   constructor(){
@@ -36,3 +41,19 @@ export default class NewTicket extends Component {
     );
   }
 }
+
+
+ /** listen state */
+ const mapStateToProps = (state) => ({
+  userConfig: state.user,
+  userObj: state.user.userObj,
+  token: state.user.token
+});
+
+/** dispatch actions */
+const mapDispatchToProps = dispatch => ({
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(NewTicket)
+
+
