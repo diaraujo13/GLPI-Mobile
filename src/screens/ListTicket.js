@@ -92,8 +92,14 @@ class ListTicket extends Component {
         );
     }else {
 
-    let llData = this.props.userProfile.last_login.split(' ');
-    let llfdata = llData[0].split('-').reverse().toString().replace(/,/g, '-').concat(' ' + llData[1]);
+    let llfdata = null;
+
+    try {
+      let llData = this.props.userProfile.last_login.split(' ');
+      llfdata = llData[0].split('-').reverse().toString().replace(/,/g, '-').concat(' ' + llData[1]);
+    } catch (error) {
+      llfdata = '-';
+    }  
 
 
     return (
@@ -190,7 +196,13 @@ class ListTicket extends Component {
           </List>
         </Content>
         <Button rounded larger icon light 
-          onPress={ () => Actions.newService()}
+          onPress={ () => this.props.navigator.push({
+            screen:'NewTicket',
+
+           title:'Novo chamado',
+            animated: true, 
+            animationType: 'slide-horizontal',
+          })}
           style={{position:'absolute',  zIndex: 10320101203023,
           backgroundColor:'#0c9fda',  right: 20, bottom: 20}}>
             <Icon name='add' style={{ color: '#fff', fontSize: 20,}} color={'white'}/>

@@ -12,7 +12,7 @@ const startTabs = () => {
 
         Navigation.startSingleScreenApp( {
             screen: {
-                title:'Início',
+                title:'Meus chamados',
                 screen: 'ListTicket', // unique ID registered with Navigation.registerScreen,
                 navigatorButtons: {
                     leftButtons: [
