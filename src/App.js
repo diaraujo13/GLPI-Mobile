@@ -11,6 +11,7 @@ import NewTicket from './screens/NewTicket';
 import ListTicket from './screens/ListTicket';
 import SideDrawer from './nav/drawer';
 import logFetch from './config/logFetch';
+import ConfirmPic from './screens/ConfirmPic';
 
 
 const MainStore = store();
@@ -20,6 +21,7 @@ Navigation.registerComponent('start', () => Start, MainStore, Provider);
 Navigation.registerComponent('SideDrawer', () => SideDrawer, MainStore, Provider);
 Navigation.registerComponent('NewTicket', () => NewTicket, MainStore, Provider);
 Navigation.registerComponent('ListTicket', () => ListTicket, MainStore, Provider);
+Navigation.registerComponent('ConfirmPic', () => ConfirmPic, MainStore, Provider);
 
 
 

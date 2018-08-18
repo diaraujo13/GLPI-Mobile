@@ -109,38 +109,70 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
           let source = { uri: response.uri };
       
           let data = new FormData();
-          data.append('avatar',  {
+          data.append('file',  {
             uri:  response.uri,
             type: response.type, // or photo.type
             name: response.fileName
           });
 
+          data.append('uploadManifest',  {
+            input: {
+              uri:  response.uri,
+              type: response.type, // or photo.type
+              name: response.fileName
+            }
+          });
 
-          fetch('http://helpdesk.santamaria.ifsertao-pe.edu.br/front/fileupload.php?name=filename&showfilesize=1'  , {
-            method: 'POST',
-            headers: new Headers({
-              'Content-Type' : 'multipart/form-data',
-              'Accept'       : 'application/json',
-              'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXJhbXMiOnsiaWQiOiI1YjFhMzkxNjJkYTFmZTU0NWY1NzQ0NmIifSwiaWF0IjoxNTMyMDE3MDg4LCJleHAiOjE1MzIxMDM0ODh9.-_Y583Rp_QkI-eyEcEp0YroiTtWqrzdaLZddDn24WhA'
-            }),
-            body: data
-          }).catch(err => {
+
+          var request = new XMLHttpRequest();
+          request.onreadystatechange = (e) => {
+            if (request.readyState !== 4) {
+              return;
+            }
+
+            if (request.status === 200) {
               Toast.show({
-                text: err.message || 'Ocorreu um erro desconhecido!',
+                text: 'Imagem atualizada com sucesso!',
                 buttonText: 'Certo',
                 type: "success"
-            });
-          })
-          .then(res => {
-            Toast.show({
-              text: 'Imagem atualizada com sucesso!',
-              buttonText: 'Certo',
-              type: "success"
-            });
-          });
-        }
-      });
+              });
+              console.log('success', request.responseText);
+            } else {
+              console.warn('error');
+            }
+          };
 
+          request.open('POST', API_URL + '/Document', true);
+          request.setRequestHeader("Session-Token", this.props.token)
+
+          request.send(data);
+
+        //   fetch(API_URL + '/Document'  , {
+        //     method: 'POST',
+        //     headers: new Headers({
+        //       'Content-Type' : 'multipart/form-data',
+        //       'Accept'       : 'application/json',
+        //     }),
+        //     body: data
+        //   }).catch(err => {
+        //       console.log(err);
+              
+        //       Toast.show({
+        //         text: err.message || 'Ocorreu um erro desconhecido!',
+        //         buttonText: 'Certo',
+        //         type: "success"
+        //     });
+        //   })
+        //   .then(res => {
+        //     Toast.show({
+        //       text: 'Imagem atualizada com sucesso!',
+        //       buttonText: 'Certo',
+        //       type: "success"
+        //     });
+        //   });
+        // }
+      // });
+        }})
   }
 
 
@@ -155,9 +187,16 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
           takePhotoButtonTitle: 'Fotografar...',
           chooseFromLibraryButtonTitle: 'Escolher da Galeria...'
       };
+
+
       ImagePicker.showImagePicker(options, async (response) => {
           if(response.didCancel) return;
-          else this.attach(response, id);
+          else this.props.navigator.push({
+            screen: 'ConfirmPic',
+            animated: true,
+            animationType: 'fade'
+
+          })
       });
   }
 
@@ -221,7 +260,7 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
 
                   <Item>
                     
-                   <Button iconLeft onPress={this.pickImage}>         
+                   <Button iconLeft onPress={this.uploadPhoto}>         
                    
                       <Icon name='add' style={{ color: '#fff', fontSize: 20,}} color={'white'}/>
 

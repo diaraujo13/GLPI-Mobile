@@ -28,7 +28,8 @@ public class MainApplication extends NavigationApplication {
          // No need to add RnnPackage and MainReactPackage
          return Arrays.<ReactPackage>asList(
                 new VectorIconsPackage(),
-                new LinearGradientPackage()
+                new LinearGradientPackage(),
+                   new ImagePickerPackage() 
          );
     }
 
