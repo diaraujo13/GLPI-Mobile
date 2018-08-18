@@ -6,7 +6,8 @@ export default class FotosFetchService{
 
         let formData = new FormData();
         
-        formData.append('file', {uri:data.uri, type:data.type, name:data.fileName});
+        // formData.append('file', {uri:data.uri, type:data.type, name:data.fileName});
+        formData.append('image', data.data);
         
         const uri = "https://api.imgur.com/3/image";
 

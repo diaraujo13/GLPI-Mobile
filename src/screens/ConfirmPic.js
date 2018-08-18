@@ -17,7 +17,7 @@ class ConfirmPic extends Component {
   }
 
   componentWillMount(){
-    console.log(this.props);
+    console.log(this.props);  
 
   }
 
@@ -26,7 +26,7 @@ class ConfirmPic extends Component {
     await this.setState({ carregando: true});
 
        FotosFetchService
-       .send(this.props.response, this.props.id)
+       .send(this.props.selectedImage, this.props.id)
        .then(response => {
          if (response.status >= 400)
           throw new Error();
@@ -37,6 +37,12 @@ class ConfirmPic extends Component {
 
           console.log(resJson);
           // Actions.pop();
+
+
+          this.props.addImage({
+            pos: this.props.imagesArray.length,
+            image: resJson,
+          });
 
           Alert.alert('Sucesso', 'Imagem enviada com sucesso', 
           [ 
@@ -51,12 +57,12 @@ class ConfirmPic extends Component {
         
       })
       .catch((err)=>{
-        console.log('eerro0');
+        console.log('eerro0', err);
 
 
         Alert.alert('Erro', 'Imagem não foi enviada!', 
         [ 
-          {text: 'OK', onPress: () => Actions.pop() },
+          {text: 'OK'},
         ]);
 
         Toast.show({
@@ -87,7 +93,7 @@ class ConfirmPic extends Component {
     
         <Image 
             style={{flex: 1, width: 250, resizeMode:'contain', marginVertical: 20}}
-            source={{uri: 'file://'+this.props.response.path}}
+            source={{uri: 'file://'+this.props.selectedImage.path}}
         />
         <Button block success onPress={this.sendImage}>
             <Text>Confirmar envio da imagem</Text>

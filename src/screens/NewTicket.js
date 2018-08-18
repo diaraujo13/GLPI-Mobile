@@ -25,6 +25,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RoundedBadge from '../component/roundedBadge';
 import ImagePicker from 'react-native-image-picker';
 import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme } from 'react-native-ui-kitten'; 
+import { setImage } from '../actions/image';
 
  class NewTicket extends Component {
    state = {
@@ -191,12 +192,16 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
 
       ImagePicker.showImagePicker(options, async (response) => {
           if(response.didCancel) return;
-          else this.props.navigator.push({
-            screen: 'ConfirmPic',
-            animated: true,
-            animationType: 'fade'
+          else {
+            
+            this.props.setImage(response);
 
-          })
+            this.props.navigator.push({
+              screen: 'ConfirmPic',
+              animated: true,
+              animationType: 'fade'
+          });
+        }
       });
   }
 
@@ -216,6 +221,9 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
               <Content style={{padding: 10}}>
               <Card >
                 <Form style={{paddingBottom:10}}> 
+                <Item  bordered={false} style={{ borderBottomColor:'transparent'}} >
+                    <Text style={{fontWeight:'bold', marginVertical: 10, flex: 1,}} >DESCRIÇÃO</Text>
+                </Item>
                   <Item stacked>
                     <Label>Título</Label>
                     <Input />
@@ -258,16 +266,33 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
                   </Picker>
                   </Item>  
 
+                  <Item  bordered={false} style={{ borderBottomColor:'transparent'}} >
+                    <Text style={{fontWeight:'bold', marginVertical: 20, flex: 1,}} >LISTA DE FOTOS</Text>
+                  </Item>
                   <Item>
                     
-                   <Button iconLeft onPress={this.uploadPhoto}>         
+                   <Button light full style={{flex: 1, marginRight: 15, alignItems:'center', justifyContent:'center'}} onPress={this.pickImage}>         
                    
-                      <Icon name='add' style={{ color: '#fff', fontSize: 20,}} color={'white'}/>
+                      <FontAwesome name='upload' style={{ textAlign:'center', color: 'dodgerblue', fontSize: 20,}} color={'#444'}/>
 
-                    <Text>Adicionar foto</Text>
+                    <Text style={{color: 'dodgerblue', fontWeight:'bold'}}>Adicionar foto</Text>
                   </Button>
                   </Item>
+
+                  <Item bordered={false} style={{ borderBottomColor:'transparent', flexDirection:'column'}} >
+
+                            { this.props.imagesArray.length > 0 ?(this.props.imagesArray.map( el => {
+                            return (
+                            <View light full style={{flex: 1, flexDirection:'row', marginRight: 15, alignItems:'center', justifyContent:'center'}}>         
+  
+                                <Image style={{margin: 20, flex: 1, width: 100, height: 100, resizeMode:'cover'}} source={{uri: el.image.data.link}}></Image>
+
+                                <Text style={{flex: 1, color:'red'}}>{el.image.data.link} </Text>
+                                <FontAwesome name='close' style={{ textAlign:'center', color: 'dodgerblue', fontSize: 20,}} color={'#444'}/>
           
+                            </View>)
+                            })) : <Text>-</Text> }
+                  </Item>
                 </Form>
                 </Card>
 
@@ -287,11 +312,14 @@ import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme }
  const mapStateToProps = (state) => ({
   userConfig: state.user,
   userObj: state.user.userObj,
-  token: state.user.token
+  token: state.user.token,
+  imagesArray : state.image.imagesArray,
+  
 });
 
 /** dispatch actions */
 const mapDispatchToProps = dispatch => ({
+  setImage: (objImg) => dispatch(setImage(objImg))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewTicket)
