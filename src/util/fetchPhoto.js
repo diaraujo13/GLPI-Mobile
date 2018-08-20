@@ -8,7 +8,7 @@ export default class FotosFetchService{
         
         // formData.append('file', {uri:data.uri, type:data.type, name:data.fileName});
         formData.append('image', data.data);
-        
+
         const uri = "https://api.imgur.com/3/image";
 
         const requestInfo ={
@@ -22,8 +22,6 @@ export default class FotosFetchService{
         };
 
         return fetch(uri, requestInfo)
-            
-
-        
+    
     }
 }

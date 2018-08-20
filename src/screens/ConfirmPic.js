@@ -34,11 +34,7 @@ class ConfirmPic extends Component {
           return response.json();
        })
        .then((resJson)=>{
-
           console.log(resJson);
-          // Actions.pop();
-
-
           this.props.addImage({
             pos: this.props.imagesArray.length,
             image: resJson,

@@ -15,7 +15,7 @@
 */
 
 import React, { Component } from 'react';
-import { Platform, StyleSheet, View, Dimensions, Image, ActivityIndicator } from 'react-native';
+import { Platform, StyleSheet, View, Dimensions, Image, Alert, ActivityIndicator, TouchableOpacity } from 'react-native';
 import {List, ListItem, Toast, Right, Fab, Grid, Col, Thumbnail, 
 Form, Title, Spinner, Item, Input, Label, Container, Header, Card,Body, 
 CheckBox, CardItem, Button, Content, Root,  Textarea, Icon, ActionSheet, Text, Separator, H1, H2, H3, H4, Picker} from 'native-base';
@@ -25,18 +25,24 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import RoundedBadge from '../component/roundedBadge';
 import ImagePicker from 'react-native-image-picker';
 import { RkButton, RkText, RkTextInput, RkAvoidKeyboard, RkStyleSheet, RkTheme } from 'react-native-ui-kitten'; 
-import { setImage } from '../actions/image';
+import { setImage, delImage } from '../actions/image';
 
  class NewTicket extends Component {
    state = {
       categorias: [],
       localizacoes: [],
 
-      localizacaoId: null,
-      categoriaId: null,
+      locations_id: 0,
+      itilcategories_id: 0,
 
 
-      carregando: true
+      carregando: true,
+
+
+      urgency: 5,
+      impact: 5,
+      type: 1,
+      
    };
 
   constructor(){
@@ -77,105 +83,6 @@ import { setImage } from '../actions/image';
   }
 
 
-  uploadPhoto = () => {
-
-
-    var options = {
-        title: 'Nova foto da aeronave',
-        mediaType: 'photo',
-        storageOptions: {
-          skipBackup: true,
-          path: 'images'
-        }
-      };
-
-
-      ImagePicker.showImagePicker(options, (response) => {
-        console.log('Response = ', response);
-        console.log(response.uri);
-        console.log(response.type);
-        console.log(response.fileName);
-        
-      
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        }
-        else if (response.error) {
-          console.log('ImagePicker Error: ', response.error);
-        }
-        else if (response.customButton) {
-          console.log('User tapped custom button: ', response.customButton);
-        }
-        else {
-          let source = { uri: response.uri };
-      
-          let data = new FormData();
-          data.append('file',  {
-            uri:  response.uri,
-            type: response.type, // or photo.type
-            name: response.fileName
-          });
-
-          data.append('uploadManifest',  {
-            input: {
-              uri:  response.uri,
-              type: response.type, // or photo.type
-              name: response.fileName
-            }
-          });
-
-
-          var request = new XMLHttpRequest();
-          request.onreadystatechange = (e) => {
-            if (request.readyState !== 4) {
-              return;
-            }
-
-            if (request.status === 200) {
-              Toast.show({
-                text: 'Imagem atualizada com sucesso!',
-                buttonText: 'Certo',
-                type: "success"
-              });
-              console.log('success', request.responseText);
-            } else {
-              console.warn('error');
-            }
-          };
-
-          request.open('POST', API_URL + '/Document', true);
-          request.setRequestHeader("Session-Token", this.props.token)
-
-          request.send(data);
-
-        //   fetch(API_URL + '/Document'  , {
-        //     method: 'POST',
-        //     headers: new Headers({
-        //       'Content-Type' : 'multipart/form-data',
-        //       'Accept'       : 'application/json',
-        //     }),
-        //     body: data
-        //   }).catch(err => {
-        //       console.log(err);
-              
-        //       Toast.show({
-        //         text: err.message || 'Ocorreu um erro desconhecido!',
-        //         buttonText: 'Certo',
-        //         type: "success"
-        //     });
-        //   })
-        //   .then(res => {
-        //     Toast.show({
-        //       text: 'Imagem atualizada com sucesso!',
-        //       buttonText: 'Certo',
-        //       type: "success"
-        //     });
-        //   });
-        // }
-      // });
-        }})
-  }
-
 
 
   pickImage = async (id) => {
@@ -205,6 +112,95 @@ import { setImage } from '../actions/image';
       });
   }
 
+  imagesToText = async (values = []) => {
+    let descr = "---------------------\nANEXOS\n---------------------\n\n";
+
+    await values
+    .map( el => descr += el.image.data.link.concat("\n") );
+
+    console.log(descr);
+
+    return descr;
+  }
+
+  openTicket = () => {
+    this.setState({ carregando: true });
+
+    let {
+      locations_id,
+      itilcategories_id,
+      name,
+      content,
+      urgency,
+      type,
+      impact
+    } = this.state;
+
+    if ( !locations_id ||
+        !itilcategories_id ||
+        !name,
+        !content
+    ){
+
+      Alert.alert('Oops!', 'Por favor, preencha todos os campos necessários');
+      return;
+    }
+
+
+    //console.log(this.props.imagesArray);
+   
+
+    let descr = "---------------------\nANEXOS\n---------------------\n\n";
+
+    this.props.imagesArray
+    .map( el => descr += el.image.data.link + "\n" );
+
+    content += '\n\n\n' + descr;
+    console.log(descr, content);
+    debugger
+    fetch(API_URL + '/Ticket?session_token='+this.props.token, {
+    method: 'POST',
+    headers: {
+       'Accept': 'application/json',
+       'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(
+      {
+        input: {
+          locations_id,
+          itilcategories_id,
+          name,
+          content,
+          urgency,
+          type,
+          impact
+        }
+      }
+    )
+    })
+    .then(rawData => rawData.json())
+    .then(data => {
+          console.log(data);
+
+          this.setState({carregando: false})
+          Alert.alert('Sucesso', data.message, [ 
+            {text: 'OK', onPress: () =>{
+              this.props.navigator.pop({
+                animated: true, // does the pop have transition animation or does it happen immediately (optional)
+                animationType: 'fade', // 'fade' (for both) / 'slide-horizontal' (for android) does the pop have different transition animation (optional)
+              });
+              
+            } },
+          ]);
+    })
+    .catch( err => {
+         console.log(err);
+         Alert.alert('Oops', 'Chamado criado com erro');
+    }).then( () => { 
+         this.setState({carregando: false})
+    });
+  }
+
 
   render() {
     if(this.state.carregando){
@@ -226,13 +222,16 @@ import { setImage } from '../actions/image';
                 </Item>
                   <Item stacked>
                     <Label>Título</Label>
-                    <Input />
+                    <Input onChangeText={ name => this.setState({name}) }/>
                   </Item>
                   <Item style={{ borderBottomColor:'transparent'}} bordered={false}>
                     <Label>Descrição</Label>
                   </Item>
                   <Item>
-                    <Textarea rowSpan={5} style={{flex: 1, marginRight: 10}} bordered placeholder="Descreva seu chamado" />
+                    <Textarea 
+                      onChangeText={ content => this.setState({content}) }
+                      rowSpan={5} style={{flex: 1, marginRight: 10}} 
+                      bordered placeholder="Descreva seu chamado" />
                   </Item>
 
                   <Item fixedLabel>
@@ -240,15 +239,11 @@ import { setImage } from '../actions/image';
                   <Picker
                     note
                     mode="dropdown"
-                    style={{ width: 120 }}
+                    style={{ width: 120 }} 
                     style={{ flex: 1, flexShrink: 1 }}
-                    selectedValue={this.state.categoriaId}
-                    onValueChange={ categoriaId => this.setState({ categoriaId })}
-
-                  >
-                    {
-                      this.state.categorias.map( el => <Picker.Item label={el.completename} value={el.id} />)
-                    }
+                    selectedValue={this.state.itilcategories_id}
+                    onValueChange={ itilcategories_id => this.setState({ itilcategories_id })}>
+                    { this.state.categorias.map( el => <Picker.Item label={el.completename} value={el.id} />) }
                   </Picker>
                   </Item>  
                  <Item fixedLabel>
@@ -257,12 +252,9 @@ import { setImage } from '../actions/image';
                     note
                     mode="dropdown"
                     style={{ flex: 1, flexShrink: 1 }}
-                    selectedValue={this.state.localizacaoId}
-                    onValueChange={ localizacaoId => this.setState({ localizacaoId})}
-                  >
-                    {
-                      this.state.localizacoes.map( el => <Picker.Item label={el.completename} value={el.id} />)
-                    }
+                    selectedValue={this.state.locations_id}
+                    onValueChange={ locations_id => this.setState({ locations_id})} >
+                    { this.state.localizacoes.map( el => <Picker.Item label={el.completename} value={el.id} />) }
                   </Picker>
                   </Item>  
 
@@ -281,24 +273,28 @@ import { setImage } from '../actions/image';
 
                   <Item bordered={false} style={{ borderBottomColor:'transparent', flexDirection:'column'}} >
 
-                            { this.props.imagesArray.length > 0 ?(this.props.imagesArray.map( el => {
-                            return (
-                            <View light full style={{flex: 1, flexDirection:'row', marginRight: 15, alignItems:'center', justifyContent:'center'}}>         
-  
-                                <Image style={{margin: 20, flex: 1, width: 100, height: 100, resizeMode:'cover'}} source={{uri: el.image.data.link}}></Image>
+                    { this.props.imagesArray.length > 0 ?(this.props.imagesArray.map( el => {
+                    return (
+                    <View light full style={{flex: 1, flexDirection:'row', marginRight: 15, alignItems:'center', justifyContent:'center'}}>         
 
-                                <Text style={{flex: 1, color:'red'}}>{el.image.data.link} </Text>
-                                <FontAwesome name='close' style={{ textAlign:'center', color: 'dodgerblue', fontSize: 20,}} color={'#444'}/>
-          
-                            </View>)
-                            })) : <Text>-</Text> }
+                        <Image style={{margin: 20, flex: 1, width: 100, height: 100, resizeMode:'cover'}} source={{uri: el.image.data.link}}></Image>
+
+                        <Text style={{flex: 1, color:'red'}}>{el.image.data.link} </Text>
+                        
+                        <TouchableOpacity light onPress={ () => {
+                          this.props.delImage(el.pos)
+                        }}>
+                          <FontAwesome name='close' style={{ textAlign:'center', color: '#FF4500', fontSize: 20,}} color={'#444'}/>
+                        </TouchableOpacity>
+                    </View>)
+                    })) : <Text>Sem imagens para anexar</Text> }
                   </Item>
                 </Form>
-                </Card>
-
-                   <Button block>
+                   <Button style={{marginBottom: 20}} block onPress={ this.openTicket}>
                     <Text>Abrir chamado</Text>
                   </Button>
+                </Card>
+
               </Content>
             </Container>
         </Root>
@@ -319,7 +315,8 @@ import { setImage } from '../actions/image';
 
 /** dispatch actions */
 const mapDispatchToProps = dispatch => ({
-  setImage: (objImg) => dispatch(setImage(objImg))
+  setImage: (objImg) => dispatch(setImage(objImg)),
+  delImage: (pos) => dispatch(delImage(pos))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(NewTicket)
